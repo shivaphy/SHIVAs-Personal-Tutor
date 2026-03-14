@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Panel — Shiva's Personal Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cr:#fdf8f0;--cr2:#f5ede0;--ink:#1c160f;--i3:#6b5d4a;--go:#c47f17;--go2:#e8a020;--gl:#fef3dc;--tl:#1a7a6e;--tl2:#22a090;--tll:#e6f7f5;--rs:#b5402a;--rsl:#fdf0ec;--gn:#2e7d52;--gnl:#eaf4ee;--bd:#ddd4c0;--sh:rgba(60,40,10,.12);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--cr);color:var(--ink);min-height:100vh}
+/* ─ SCREENS ─ */
+#LS,#MS{min-height:100vh;flex-direction:column}
+#LS{display:flex;align-items:center;justify-content:center;padding:2rem;background:radial-gradient(ellipse at 20% 20%,rgba(196,127,23,.11),transparent 55%),var(--cr)}
+#MS{display:none}
+/* ─ LOGIN CARD ─ */
+.lc{background:#fff;border:2px solid var(--bd);border-radius:16px;padding:2.5rem 2.2rem;width:100%;max-width:400px;box-shadow:0 12px 50px var(--sh)}
+.logo{text-align:center;margin-bottom:1.8rem}
+.logo-ico{font-size:2.4rem;margin-bottom:.4rem}
+.logo h1{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--go)}
+.logo p{font-size:.76rem;color:var(--i3);letter-spacing:.1em;text-transform:uppercase;margin-top:.3rem}
+.fg{margin-bottom:.9rem}
+.fg label{display:block;font-size:.73rem;letter-spacing:.08em;text-transform:uppercase;color:var(--i3);margin-bottom:.3rem;font-weight:700}
+.fi{width:100%;background:var(--cr);border:1.5px solid var(--bd);border-radius:8px;padding:.68rem 1rem;font-family:'DM Sans',sans-serif;font-size:.93rem;color:var(--ink);outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--go);background:#fff}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--go),var(--go2));color:#fff;border:none;border-radius:9px;padding:.82rem;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;margin-top:.3rem}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(196,127,23,.3)}
+.err{background:var(--rsl);color:var(--rs);border:1px solid #f0c0b0;border-radius:7px;padding:.48rem .9rem;font-size:.82rem;margin-bottom:.8rem;display:none}
+.back-lnk{text-align:center;margin-top:.9rem;font-size:.8rem}
+.back-lnk a{color:var(--go);text-decoration:none;font-weight:600}
+/* ─ APP HEADER ─ */
+.hdr{display:flex;align-items:center;gap:.9rem;padding:.88rem 1.8rem;border-bottom:2px solid var(--bd);background:#fff;box-shadow:0 2px 16px var(--sh);position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.hdr h1{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--go)}
+.ml{margin-left:auto}.flex{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.chip{border-radius:20px;padding:.22rem .8rem;font-size:.72rem;font-weight:700}
+.chip-r{background:var(--rsl);border:1px solid #e8a090;color:var(--rs)}
+.chip-g{background:var(--gl);border:1px solid var(--go2);color:var(--go)}
+.btn-sm{background:var(--cr2);border:1.5px solid var(--bd);color:var(--i3);border-radius:7px;padding:.36rem .82rem;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-sm:hover{border-color:var(--rs);color:var(--rs)}
+/* ─ TABS ─ */
+.tabs{display:flex;border-bottom:2px solid var(--bd);background:#fff;padding:0 1.8rem;overflow-x:auto}
+.tab{padding:.8rem 1.2rem;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.87rem;font-weight:600;color:var(--i3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap}
+.tab.on{color:var(--go);border-bottom-color:var(--go)}
+/* ─ PANES ─ */
+.pane{display:none;padding:1.8rem;max-width:1100px;margin:0 auto;width:100%}
+.pane.on{display:block}
+/* ─ CARDS ─ */
+.card{background:#fff;border:1.5px solid var(--bd);border-radius:10px;padding:1.4rem;box-shadow:0 2px 12px var(--sh);margin-bottom:1.2rem}
+.ct{font-family:'Playfair Display',serif;font-size:1rem;color:var(--ink);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+/* ─ STATS ─ */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.sbox{background:#fff;border:1.5px solid var(--bd);border-radius:10px;padding:1.2rem;text-align:center;box-shadow:0 2px 10px var(--sh)}
+.snum{font-family:'Playfair Display',serif;font-size:2rem;color:var(--go)}
+.slbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--i3);margin-top:.3rem}
+/* ─ TABLE ─ */
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th{background:var(--cr2);padding:.55rem .7rem;text-align:left;font-weight:700;color:var(--i3);border:1px solid var(--bd);font-size:.73rem;text-transform:uppercase;letter-spacing:.06em}
+td{padding:.5rem .7rem;border:1px solid var(--bd);color:var(--ink);vertical-align:middle}
+tr:nth-child(even) td{background:var(--cr)}
+/* ─ BADGES ─ */
+.bdg{display:inline-block;border-radius:20px;padding:.14rem .55rem;font-size:.7rem;font-weight:700}
+.bpend{background:#fff3cd;color:#856404;border:1px solid #ffc107}
+.bappr{background:var(--gnl);color:var(--gn);border:1px solid #a0d4b8}
+.brej{background:var(--rsl);color:var(--rs);border:1px solid #e8a090}
+/* ─ ACTION BUTTONS ─ */
+.ba{background:var(--gnl);border:1px solid var(--gn);color:var(--gn);border-radius:6px;padding:.28rem .7rem;font-size:.74rem;font-weight:700;cursor:pointer;transition:all .2s}
+.ba:hover{background:var(--gn);color:#fff}
+.br{background:var(--rsl);border:1px solid var(--rs);color:var(--rs);border-radius:6px;padding:.28rem .7rem;font-size:.74rem;font-weight:700;cursor:pointer;transition:all .2s;margin-left:.3rem}
+.br:hover{background:var(--rs);color:#fff}
+/* ─ FORM ─ */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.btn-p{background:linear-gradient(135deg,var(--go),var(--go2));color:#fff;border:none;border-radius:9px;padding:.68rem 1.3rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-p:hover{transform:translateY(-1px)}
+.notify{background:var(--tll);border:1.5px solid var(--tl2);border-radius:8px;padding:.75rem 1rem;font-size:.82rem;color:var(--tl);display:none;margin-top:.7rem}
+/* ─ ACTIVITY ROWS ─ */
+.arow{background:var(--cr);border:1.5px solid var(--bd);border-radius:8px;padding:.7rem 1rem;margin-bottom:.5rem}
+.atop{display:flex;justify-content:space-between;align-items:center;margin-bottom:.24rem}
+.aname{font-weight:700;font-size:.85rem}
+.atime{font-size:.74rem;color:var(--i3)}
+.adet{color:var(--i3);font-size:.8rem;line-height:1.5}
+@media(max-width:650px){.stats{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.tabs{padding:0 .5rem}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="LS">
+  <div class="lc">
+    <div class="logo">
+      <div class="logo-ico">⚙️</div>
+      <h1>Admin Panel</h1>
+      <p>Shiva's Personal Coach</p>
+    </div>
+    <div class="err" id="loginErr"></div>
+    <div class="fg">
+      <label>Admin ID</label>
+      <input class="fi" id="inId" type="text" autocomplete="off" placeholder="Enter Admin ID" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="fg">
+      <label>Password</label>
+      <input class="fi" id="inPw" type="password" autocomplete="off" placeholder="Enter Password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In →</button>
+    <div class="back-lnk"><a href="index.html">← Platform Home</a></div>
+  </div>
+</div>
+
+<!-- MAIN APP SCREEN -->
+<div id="MS">
+  <div class="hdr">
+    <h1>⚙️ Admin Panel</h1>
+    <span class="chip chip-r">OWNER</span>
+    <div class="ml flex">
+      <span class="chip chip-g">shivuphy@gmail.com</span>
+      <button class="btn-sm" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="goTab('dash',this)">📊 Dashboard</button>
+    <button class="tab" onclick="goTab('fac',this)">👨‍🏫 Faculty</button>
+    <button class="tab" onclick="goTab('reqs',this)">📬 Requests <span id="reqBadge"></span></button>
+    <button class="tab" onclick="goTab('stu',this)">👥 Students</button>
+    <button class="tab" onclick="goTab('log',this)">📈 Activity Log</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="pane on" id="pane-dash">
+    <div class="stats" id="statRow"></div>
+    <div class="card">
+      <div class="ct">🕐 Recent Student Activity</div>
+      <div id="recentAct"></div>
+    </div>
+  </div>
+
+  <!-- FACULTY -->
+  <div class="pane" id="pane-fac">
+    <div class="card">
+      <div class="ct">👨‍🏫 Faculty Accounts</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Name</th><th>ID</th><th>Email</th><th>Email Verified</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="facTbl"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">➕ Add New Faculty</div>
+      <div class="grid2">
+        <div>
+          <div class="fg"><label>Full Name</label><input class="fi" id="nfN" placeholder="Dr. Full Name"></div>
+          <div class="fg"><label>Email</label><input class="fi" id="nfE" type="email" placeholder="faculty@email.com"></div>
+        </div>
+        <div>
+          <div class="fg"><label>Faculty ID</label><input class="fi" id="nfI" placeholder="e.g. FAC002"></div>
+          <div class="fg"><label>Temp Password</label><input class="fi" id="nfP" placeholder="Initial password"></div>
+        </div>
+      </div>
+      <button class="btn-p" onclick="addFaculty()">✉️ Create Account</button>
+      <div class="notify" id="facNotify"></div>
+    </div>
+  </div>
+
+  <!-- REQUESTS -->
+  <div class="pane" id="pane-reqs">
+    <div class="card">
+      <div class="ct">📬 Pending Requests</div>
+      <div id="reqList"></div>
+    </div>
+  </div>
+
+  <!-- STUDENTS -->
+  <div class="pane" id="pane-stu">
+    <div class="card">
+      <div class="ct">👥 Student Roster</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Name</th><th>Roll No.</th><th>Status</th><th>Sessions</th><th>Last Active</th><th>Mastery</th><th>Plagiarism</th></tr></thead>
+          <tbody id="stuTbl"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY LOG -->
+  <div class="pane" id="pane-log">
+    <div class="card">
+      <div class="ct">📈 Full Activity Log</div>
+      <div id="actLog"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  STORE — localStorage with in-memory fallback
+// ═══════════════════════════════════════════════
+var _mem = {};
+var KEYS = {FAC:'spc_faculty',STU:'spc_students',SESS:'spc_session',ACT:'spc_activity',REQ:'spc_requests'};
+var ADMIN_ID = 'ADMIN';
+var ADMIN_PASS = 'admin@shiva2025';
+var ADMIN_EMAIL = 'shivuphy@gmail.com';
+var DEF_FAC = [{id:'FAC001',name:'Dr. Shiva',email:'shivuphy@gmail.com',pass:'faculty123',approved:true,emailVerified:true}];
+var DEF_STU = [
+  {name:'Priya Sharma',roll:'CS2024001',pass:'student123',status:'idle'},
+  {name:'Arjun Mehta',roll:'CS2024002',pass:'student123',status:'idle'},
+  {name:'Ananya Rao',roll:'CS2024003',pass:'student123',status:'idle'},
+  {name:'Karthik Reddy',roll:'CS2024004',pass:'student123',status:'idle'},
+  {name:'Divya Nair',roll:'CS2024005',pass:'student123',status:'idle'}
+];
+
+function sg(k, def) {
+  try { var v = localStorage.getItem(k); if (v !== null) return JSON.parse(v); } catch(e) {}
+  return (_mem[k] !== undefined) ? _mem[k] : def;
+}
+function ss(k, v) {
+  _mem[k] = v;
+  try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
+}
+function initStore() {
+  if (!sg(KEYS.FAC, null)) ss(KEYS.FAC, DEF_FAC);
+  if (!sg(KEYS.STU, null)) ss(KEYS.STU, DEF_STU);
+  if (!sg(KEYS.REQ, null)) ss(KEYS.REQ, []);
+}
+function getFac()  { return sg(KEYS.FAC, DEF_FAC); }
+function getStu()  { return sg(KEYS.STU, DEF_STU); }
+function getAct()  { return sg(KEYS.ACT, {}); }
+function getReqs() { return sg(KEYS.REQ, []); }
+function setFac(v) { ss(KEYS.FAC, v); }
+function setStu(v) { ss(KEYS.STU, v); }
+function setReqs(v){ ss(KEYS.REQ, v); }
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function notifyEmail(to, subj, body) {
+  var link = 'mailto:' + encodeURIComponent(to)
+    + '?subject=' + encodeURIComponent(subj)
+    + '&body='    + encodeURIComponent(body);
+  window.open(link, '_blank');
+}
+
+// ═══════════════════════════════════════════════
+//  AUTH — direct DOM manipulation, no class tricks
+// ═══════════════════════════════════════════════
+function doLogin() {
+  var id   = document.getElementById('inId').value.trim();
+  var pw   = document.getElementById('inPw').value.trim();
+  var err  = document.getElementById('loginErr');
+  err.style.display = 'none';
+  if (!id || !pw) {
+    err.textContent = 'Please enter both Admin ID and Password.';
+    err.style.display = 'block';
+    return;
+  }
+  if (id === ADMIN_ID && pw === ADMIN_PASS) {
+    document.getElementById('LS').style.display = 'none';
+    document.getElementById('MS').style.display = 'flex';
+    loadAll();
+  } else {
+    err.textContent = 'Incorrect credentials. Please try again.';
+    err.style.display = 'block';
+    document.getElementById('inPw').value = '';
+    document.getElementById('inPw').focus();
+  }
+}
+
+function doLogout() {
+  document.getElementById('MS').style.display = 'none';
+  document.getElementById('LS').style.display = 'flex';
+  document.getElementById('inId').value = '';
+  document.getElementById('inPw').value = '';
+  document.getElementById('loginErr').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════
+//  TAB NAVIGATION
+// ═══════════════════════════════════════════════
+function goTab(name, el) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  document.querySelectorAll('.pane').forEach(function(p){ p.classList.remove('on'); });
+  el.classList.add('on');
+  document.getElementById('pane-'+name).classList.add('on');
+  if (name==='dash')  loadDash();
+  if (name==='fac')   renderFac();
+  if (name==='reqs')  renderReqs();
+  if (name==='stu')   renderStu();
+  if (name==='log')   renderLog();
+}
+function loadAll() { loadDash(); renderFac(); renderReqs(); renderStu(); updateBadge(); }
+
+// ═══════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════
+function loadDash() {
+  var fac = getFac(), stu = getStu(), reqs = getReqs(), act = getAct();
+  var pend = reqs.filter(function(r){ return r.status==='pending'; }).length;
+  document.getElementById('statRow').innerHTML =
+    '<div class="sbox"><div class="snum">'+fac.length+'</div><div class="slbl">Faculty</div></div>'+
+    '<div class="sbox"><div class="snum">'+stu.length+'</div><div class="slbl">Students</div></div>'+
+    '<div class="sbox"><div class="snum" style="color:var(--rs)">'+pend+'</div><div class="slbl">Pending</div></div>'+
+    '<div class="sbox"><div class="snum">'+Object.keys(act).length+'</div><div class="slbl">Active Learners</div></div>';
+  var all = [];
+  Object.keys(act).forEach(function(roll){
+    var d = act[roll];
+    (d.sessions||[]).forEach(function(s){ all.push(Object.assign({roll:roll}, s)); });
+  });
+  all.sort(function(a,b){ return new Date(b.ts)-new Date(a.ts); });
+  var html = all.slice(0,6).map(function(a){
+    return '<div class="arow"><div class="atop"><span class="aname">'+esc(a.roll)+'</span>'+
+      '<span class="atime">'+(a.ts?new Date(a.ts).toLocaleString():'')+'</span></div>'+
+      '<div class="adet">Topic: '+esc(a.topic||'—')+' · Exchanges: '+(a.exchanges||0)+' · Mastery: '+esc(a.mastery||'—')+
+      (a.plagFlag?'&nbsp;<span class="bdg brej">⚠ Plagiarism</span>':'')+
+      '</div></div>';
+  }).join('');
+  document.getElementById('recentAct').innerHTML = html || '<p style="font-size:.84rem;color:var(--i3)">No student activity yet.</p>';
+}
+
+// ═══════════════════════════════════════════════
+//  FACULTY
+// ═══════════════════════════════════════════════
+function renderFac() {
+  var fac = getFac();
+  document.getElementById('facTbl').innerHTML = fac.map(function(f,i){
+    return '<tr><td><b>'+esc(f.name)+'</b></td>'+
+      '<td><code style="background:var(--cr2);padding:.1rem .4rem;border-radius:4px">'+esc(f.id)+'</code></td>'+
+      '<td>'+esc(f.email)+'</td>'+
+      '<td>'+(f.emailVerified?'<span class="bdg bappr">✓ Verified</span>':'<span class="bdg bpend">Pending</span>')+'</td>'+
+      '<td>'+(f.approved?'<span class="bdg bappr">Approved</span>':'<span class="bdg bpend">Pending</span>')+'</td>'+
+      '<td style="white-space:nowrap">'+
+        (!f.approved?'<button class="ba" onclick="approveFac('+i+')">✓ Approve</button>':'')+
+        '<button class="br" onclick="revokeFac('+i+')">'+( f.approved?'Revoke':'Delete')+'</button>'+
+      '</td></tr>';
+  }).join('');
+}
+function approveFac(i) {
+  var fac = getFac();
+  fac[i].approved = true; fac[i].emailVerified = true;
+  setFac(fac);
+  var body =
+    'Dear ' + fac[i].name + ',\n\n'
+    + 'Your faculty account on Shiva\'s Personal Coach has been approved by the Admin.\n\n'
+    + 'Your Login Credentials:\n'
+    + '  Faculty ID : ' + fac[i].id + '\n'
+    + '  Password   : ' + fac[i].pass + '\n'
+    + '  Login page : faculty.html (or the hosted URL)\n\n'
+    + 'Please log in and change your password after first sign-in.\n\n'
+    + 'Best regards,\n'
+    + 'Admin — Shiva\'s Personal Coach\n'
+    + ADMIN_EMAIL;
+  notifyEmail(fac[i].email, '✅ Faculty Account Approved — Shiva\'s Personal Coach', body);
+  renderFac(); loadDash();
+  alert('✅ ' + fac[i].name + ' approved!\nYour email client will open to send the approval email to: ' + fac[i].email);
+}
+function revokeFac(i) {
+  var fac = getFac();
+  if (!confirm('Remove/revoke '+fac[i].name+'?')) return;
+  fac[i].approved = false; setFac(fac); renderFac();
+}
+function addFaculty() {
+  var n = document.getElementById('nfN').value.trim();
+  var e = document.getElementById('nfE').value.trim();
+  var id= document.getElementById('nfI').value.trim();
+  var pw= document.getElementById('nfP').value.trim();
+  if (!n||!e||!id||!pw) { alert('Please fill all four fields.'); return; }
+  var fac = getFac();
+  if (fac.find(function(f){ return f.id===id; })) { alert('Faculty ID "'+id+'" already exists.'); return; }
+  fac.push({id:id,name:n,email:e,pass:pw,approved:true,emailVerified:true});
+  setFac(fac);
+  // Send approval email immediately since admin is directly creating this account
+  var body =
+    'Dear ' + n + ',\n\n'
+    + 'Your faculty account on Shiva\'s Personal Coach has been created and approved.\n\n'
+    + 'Your Login Credentials:\n'
+    + '  Faculty ID : ' + id + '\n'
+    + '  Password   : ' + pw + '\n'
+    + '  Login page : faculty.html (or the hosted platform URL)\n\n'
+    + 'Please log in and change your password after your first sign-in.\n\n'
+    + 'Best regards,\n'
+    + 'Admin — Shiva\'s Personal Coach\n'
+    + ADMIN_EMAIL;
+  notifyEmail(e, '✅ Faculty Account Ready — Shiva\'s Personal Coach', body);
+  var nb = document.getElementById('facNotify');
+  nb.textContent = '✅ Account created and approved for ' + n + '. Your email client will open to send credentials to ' + e + '.';
+  nb.style.display = 'block';
+  document.getElementById('nfN').value=''; document.getElementById('nfE').value='';
+  document.getElementById('nfI').value=''; document.getElementById('nfP').value='';
+  renderFac();
+}
+
+// ═══════════════════════════════════════════════
+//  REQUESTS
+// ═══════════════════════════════════════════════
+function updateBadge() {
+  var n = getReqs().filter(function(r){ return r.status==='pending'; }).length;
+  document.getElementById('reqBadge').innerHTML = n ?
+    '<span style="background:var(--rs);color:#fff;border-radius:20px;padding:.1rem .45rem;font-size:.68rem;margin-left:.3rem">'+n+'</span>' : '';
+}
+function renderReqs() {
+  var reqs = getReqs(), el = document.getElementById('reqList');
+  if (!reqs.length) { el.innerHTML = '<p style="font-size:.84rem;color:var(--i3)">No requests yet.</p>'; return; }
+  var rev = reqs.slice().reverse();
+  el.innerHTML = rev.map(function(r, ri){
+    var i = reqs.length - 1 - ri;
+    var typeLabel = r.type==='faculty_reg' ? '👨‍🏫 Faculty Registration' : '🔑 Password Reset';
+    var actions = r.status==='pending'
+      ? '<button class="ba" style="margin-left:.6rem" onclick="resolveReq('+i+',\'approved\')">✓ Approve</button>'+
+        '<button class="br" onclick="resolveReq('+i+',\'rejected\')">✗ Reject</button>' : '';
+    return '<div class="arow"><div class="atop"><span class="aname">'+typeLabel+' — '+esc(r.name||r.id||r.roll||'')+'</span>'+
+      '<span class="atime">'+new Date(r.ts).toLocaleString()+'</span></div>'+
+      '<div class="adet">Email: '+esc(r.email||'—')+' · Role: '+esc(r.role||'—')+' · '+esc(r.message||'')+
+      '&nbsp;<span class="bdg '+(r.status==='pending'?'bpend':r.status==='approved'?'bappr':'brej')+'">'+r.status+'</span>'+
+      actions+'</div></div>';
+  }).join('');
+}
+function resolveReq(i, status) {
+  var reqs = getReqs(); reqs[i].status = status;
+  var r = reqs[i];
+  if (status === 'approved' && r.type === 'password_reset') {
+    var np = 'Tmp@'+Math.random().toString(36).slice(2,8).toUpperCase();
+    if (r.role === 'faculty') {
+      var fac = getFac(); var f = fac.find(function(x){ return x.email===r.email||x.id===r.id; });
+      if (f) { f.pass = np; setFac(fac); }
+    } else {
+      var stu = getStu(); var s = stu.find(function(x){ return x.roll===r.roll; });
+      if (s) { s.pass = np; setStu(stu); }
+    }
+    notifyEmail(r.email, '🔑 Password Reset', 'New temp password: '+np+'\nChange after login.');
+    alert('✅ Approved. New password: '+np+'\nSent to: '+r.email);
+  } else if (status === 'approved' && r.type === 'faculty_reg') {
+    // Faculty registration approved — find their record and send credentials
+    var fac = getFac();
+    var f = fac.find(function(x){ return x.email===r.email || x.id===r.id; });
+    if(f){ f.approved = true; f.emailVerified = true; setFac(fac); }
+    var credBody =
+      'Dear ' + esc(r.name||'Faculty') + ',\n\n'
+      + 'Your faculty registration on Shiva\'s Personal Coach has been approved.\n\n'
+      + 'Your Login Credentials:\n'
+      + '  Faculty ID : ' + esc(r.id||'See admin') + '\n'
+      + '  Password   : ' + esc(f?f.pass:'Please contact admin') + '\n'
+      + '  Login page : faculty.html (or the hosted platform URL)\n\n'
+      + 'Please log in and update your password on first sign-in.\n\n'
+      + 'Best regards,\n'
+      + 'Admin — Shiva\'s Personal Coach\n'
+      + ADMIN_EMAIL;
+    notifyEmail(r.email, '✅ Faculty Account Approved — Shiva\'s Personal Coach', credBody);
+    alert('✅ Approved! Your email client will open to send credentials to: ' + r.email);
+  } else if (status === 'approved') {
+    var genBody = 'Dear ' + esc(r.name||'User') + ',\n\nYour request has been approved by the Admin.\n\nBest regards,\nAdmin — Shiva\'s Personal Coach\n' + ADMIN_EMAIL;
+    notifyEmail(r.email, '✅ Request Approved — Shiva\'s Personal Coach', genBody);
+    alert('✅ Approved and email queued to: '+r.email);
+  }
+  setReqs(reqs); renderReqs(); loadDash(); updateBadge();
+}
+
+// ═══════════════════════════════════════════════
+//  STUDENTS
+// ═══════════════════════════════════════════════
+function renderStu() {
+  var stu = getStu(), act = getAct();
+  document.getElementById('stuTbl').innerHTML = stu.map(function(s){
+    var a = act[s.roll]; var lat = a && a.latest;
+    var lastTs = a && a.sessions && a.sessions.length ? a.sessions[a.sessions.length-1].ts : null;
+    return '<tr><td><b>'+esc(s.name)+'</b></td>'+
+      '<td><code style="background:var(--cr2);padding:.1rem .35rem;border-radius:4px">'+esc(s.roll)+'</code></td>'+
+      '<td><span class="bdg '+(s.status==='active'?'bappr':'bpend')+'">'+esc(s.status||'idle')+'</span></td>'+
+      '<td>'+(a&&a.sessions?a.sessions.length:0)+'</td>'+
+      '<td style="font-size:.77rem">'+(lastTs?new Date(lastTs).toLocaleString():'Never')+'</td>'+
+      '<td>'+(lat?esc(lat.mastery||'—'):'—')+'</td>'+
+      '<td>'+(lat&&lat.plagFlag?'<span class="bdg brej">⚠ Flagged</span>':'<span class="bdg bappr">✓ Clean</span>')+'</td>'+
+      '</tr>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  ACTIVITY LOG
+// ═══════════════════════════════════════════════
+function renderLog() {
+  var act = getAct(), all = [];
+  Object.keys(act).forEach(function(roll){
+    (act[roll].sessions||[]).forEach(function(s){ all.push(Object.assign({roll:roll},s)); });
+  });
+  all.sort(function(a,b){ return new Date(b.ts)-new Date(a.ts); });
+  var el = document.getElementById('actLog');
+  if (!all.length) { el.innerHTML = '<p style="font-size:.84rem;color:var(--i3)">No activity recorded yet.</p>'; return; }
+  el.innerHTML = all.map(function(a){
+    return '<div class="arow"><div class="atop"><span class="aname">'+esc(a.roll)+'</span>'+
+      '<span class="atime">'+new Date(a.ts).toLocaleString()+'</span></div>'+
+      '<div class="adet">Topic: '+esc(a.topic||'—')+' · Exchanges: '+(a.exchanges||0)+
+      ' · Mastery: '+esc(a.mastery||'—')+' · Grade: '+esc(a.grade||'—')+
+      (a.plagFlag?'&nbsp;<span class="bdg brej">⚠ Plagiarism</span>':'')+
+      '</div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+initStore();
+</script>
+</body>
+</html>
